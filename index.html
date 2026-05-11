@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meta_Ads_Connection 536537030 — Process Log</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Salesforce Sans', Arial, sans-serif; font-size: 13px; background: #f3f3f3; color: #3e3e3c; }
+
+    /* ── Top Nav ── */
+    .top-nav {
+      background: #0b5cab;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 12px;
+      color: #fff;
+    }
+    .top-nav .app-name { font-size: 15px; font-weight: 600; letter-spacing: .3px; }
+    .top-nav .nav-links { display: flex; gap: 24px; margin-left: 24px; }
+    .top-nav .nav-links a { color: rgba(255,255,255,.85); text-decoration: none; font-size: 13px; padding: 4px 0; border-bottom: 2px solid transparent; }
+    .top-nav .nav-links a.active { color: #fff; border-bottom-color: #fff; }
+    .top-nav .spacer { flex: 1; }
+    .top-nav .icon-btn { background: none; border: none; color: rgba(255,255,255,.85); cursor: pointer; font-size: 16px; padding: 4px 6px; }
+
+    /* ── Sub Nav ── */
+    .sub-nav {
+      background: #fff;
+      border-bottom: 1px solid #dddbda;
+      padding: 0 20px;
+      display: flex;
+      gap: 0;
+    }
+    .sub-nav a {
+      padding: 10px 16px;
+      text-decoration: none;
+      color: #3e3e3c;
+      font-size: 13px;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+    }
+    .sub-nav a.active { color: #0070d2; border-bottom-color: #0070d2; font-weight: 600; }
+
+    /* ── Page Header ── */
+    .page-header {
+      background: #fff;
+      padding: 12px 20px 0;
+      border-bottom: 1px solid #dddbda;
+    }
+    .page-header .breadcrumb { font-size: 11px; color: #706e6b; margin-bottom: 4px; }
+    .page-header .title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .page-header h1 { font-size: 20px; font-weight: 700; color: #080707; }
+    .badge-active {
+      background: #4bca81;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 12px;
+      letter-spacing: .3px;
+    }
+    .header-actions { margin-left: auto; display: flex; gap: 8px; }
+    .btn {
+      border: 1px solid #dddbda;
+      background: #fff;
+      color: #0070d2;
+      padding: 5px 14px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: background .15s;
+    }
+    .btn:hover { background: #f4f6f9; }
+    .btn.btn-primary { background: #0070d2; color: #fff; border-color: #0070d2; }
+    .btn.btn-primary:hover { background: #005fb2; }
+    .btn.btn-danger { background: #c23934; color: #fff; border-color: #c23934; }
+    .btn.btn-danger:hover { background: #a61a14; }
+    .btn.btn-warning { background: #ffb75d; color: #3e3e3c; border-color: #ffb75d; }
+    .btn.btn-warning:hover { background: #ffa83a; }
+
+    /* ── Meta Info Strip ── */
+    .meta-strip {
+      background: #fff;
+      padding: 8px 20px 12px;
+      display: flex;
+      gap: 32px;
+      border-bottom: 1px solid #dddbda;
+    }
+    .meta-strip .meta-item label { font-size: 11px; color: #706e6b; display: block; margin-bottom: 1px; }
+    .meta-strip .meta-item span { font-size: 12px; color: #3e3e3c; }
+
+    /* ── Tab Bar ── */
+    .tab-bar {
+      background: #fff;
+      border-bottom: 1px solid #dddbda;
+      padding: 0 20px;
+      display: flex;
+      gap: 0;
+    }
+    .tab-bar a {
+      padding: 10px 18px;
+      text-decoration: none;
+      color: #706e6b;
+      font-size: 13px;
+      border-bottom: 2px solid transparent;
+    }
+    .tab-bar a.active { color: #0070d2; border-bottom-color: #0070d2; font-weight: 600; }
+
+    /* ── Content Area ── */
+    .content { padding: 16px 20px; }
+
+    /* ── Table Card ── */
+    .table-card {
+      background: #fff;
+      border: 1px solid #dddbda;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .table-toolbar {
+      display: flex;
+      align-items: center;
+      padding: 10px 14px;
+      border-bottom: 1px solid #dddbda;
+      gap: 10px;
+    }
+    .table-toolbar .toolbar-title { font-weight: 700; font-size: 13px; flex: 1; }
+    .search-box {
+      border: 1px solid #dddbda;
+      border-radius: 4px;
+      padding: 4px 10px;
+      font-size: 12px;
+      width: 200px;
+      outline: none;
+      color: #3e3e3c;
+    }
+    .search-box:focus { border-color: #0070d2; box-shadow: 0 0 0 2px rgba(0,112,210,.2); }
+    .per-page-select {
+      border: 1px solid #dddbda;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 12px;
+      color: #3e3e3c;
+      cursor: pointer;
+    }
+
+    /* ── Table ── */
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    thead th {
+      background: #f3f3f3;
+      padding: 8px 10px;
+      text-align: left;
+      font-weight: 700;
+      font-size: 11px;
+      color: #706e6b;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      border-bottom: 1px solid #dddbda;
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+    }
+    thead th:hover { background: #e8e8e8; }
+    thead th .sort-arrow { margin-left: 4px; opacity: .5; }
+    tbody tr { border-bottom: 1px solid #f3f3f3; transition: background .1s; }
+    tbody tr:hover { background: #f4f6f9; }
+    tbody td { padding: 8px 10px; vertical-align: middle; color: #3e3e3c; }
+    tbody td.td-link { color: #0070d2; cursor: pointer; }
+    tbody td.td-link:hover { text-decoration: underline; }
+
+    /* Status Pills */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .pill-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+    .pill.success  { background: #e3f5e8; color: #2e844a; }
+    .pill.success .pill-dot  { background: #2e844a; }
+    .pill.failed   { background: #fce9e9; color: #c23934; }
+    .pill.failed .pill-dot   { background: #c23934; }
+    .pill.running  { background: #e8f4ff; color: #0070d2; }
+    .pill.running .pill-dot  { background: #0070d2; }
+    .pill.pending  { background: #fff3d5; color: #8a6000; }
+    .pill.pending .pill-dot  { background: #ffb75d; }
+    .pill.skipped  { background: #f3f3f3; color: #706e6b; }
+    .pill.skipped .pill-dot  { background: #9ea0a5; }
+
+    /* Accounts button */
+    .accounts-btn {
+      background: #e8f4ff;
+      border: 1px solid #b0d4f5;
+      color: #0070d2;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: background .15s;
+      white-space: nowrap;
+    }
+    .accounts-btn:hover { background: #c5e2f9; }
+    .accounts-btn .acct-count {
+      background: #0070d2;
+      color: #fff;
+      border-radius: 10px;
+      padding: 0 5px;
+      font-size: 10px;
+      min-width: 16px;
+      text-align: center;
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 10px 14px;
+      gap: 6px;
+      border-top: 1px solid #dddbda;
+    }
+    .pagination span { font-size: 12px; color: #706e6b; margin-right: 6px; }
+    .page-btn {
+      border: 1px solid #dddbda;
+      background: #fff;
+      color: #3e3e3c;
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .page-btn.active { background: #0070d2; color: #fff; border-color: #0070d2; }
+    .page-btn:hover:not(.active) { background: #f4f6f9; }
+
+    /* ═══════════════════════════════════════════
+       MODAL OVERLAY
+    ═══════════════════════════════════════════ */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: #fff;
+      border-radius: 6px;
+      box-shadow: 0 8px 40px rgba(0,0,0,.28);
+      width: 100%;
+      max-width: 1050px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      animation: modal-in .18s ease;
+    }
+    @keyframes modal-in {
+      from { opacity: 0; transform: translateY(-18px) scale(.97); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    /* Modal Header */
+    .modal-header {
+      display: flex;
+      align-items: flex-start;
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid #dddbda;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .modal-header-info { flex: 1; }
+    .modal-header-info .modal-title { font-size: 17px; font-weight: 700; color: #080707; }
+    .modal-header-info .modal-subtitle {
+      font-size: 12px;
+      color: #706e6b;
+      margin-top: 3px;
+    }
+    .modal-header-info .modal-subtitle .linked-row-id {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #f4f6f9;
+      border: 1px solid #dddbda;
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-family: monospace;
+      font-size: 11px;
+      color: #3e3e3c;
+      margin-left: 6px;
+    }
+    .modal-header-info .modal-subtitle .linked-row-id svg { width: 10px; height: 10px; opacity: .6; }
+    .modal-header-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 22px;
+      color: #706e6b;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0 2px;
+      margin-left: 4px;
+    }
+    .modal-close:hover { color: #c23934; }
+
+    /* Modal Summary Bar */
+    .modal-summary {
+      display: flex;
+      gap: 24px;
+      padding: 10px 20px;
+      background: #f8f9fa;
+      border-bottom: 1px solid #dddbda;
+      flex-shrink: 0;
+    }
+    .modal-summary .sum-item { text-align: center; }
+    .modal-summary .sum-item .sum-value { font-size: 20px; font-weight: 700; color: #080707; }
+    .modal-summary .sum-item .sum-label { font-size: 11px; color: #706e6b; text-transform: uppercase; letter-spacing: .4px; }
+    .modal-summary .sum-item.c-success .sum-value { color: #2e844a; }
+    .modal-summary .sum-item.c-failed  .sum-value { color: #c23934; }
+    .modal-summary .sum-item.c-running .sum-value { color: #0070d2; }
+    .modal-summary .sum-item.c-pending .sum-value { color: #8a6000; }
+
+    /* Modal Search */
+    .modal-search-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 20px;
+      border-bottom: 1px solid #dddbda;
+      flex-shrink: 0;
+    }
+    .modal-search-bar input {
+      border: 1px solid #dddbda;
+      border-radius: 4px;
+      padding: 5px 10px;
+      font-size: 12px;
+      width: 220px;
+      outline: none;
+    }
+    .modal-search-bar input:focus { border-color: #0070d2; box-shadow: 0 0 0 2px rgba(0,112,210,.2); }
+    .modal-filter-btns { display: flex; gap: 6px; }
+    .filter-chip {
+      border: 1px solid #dddbda;
+      background: #fff;
+      color: #3e3e3c;
+      padding: 3px 12px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .12s;
+    }
+    .filter-chip:hover { background: #f4f6f9; }
+    .filter-chip.active { background: #0070d2; color: #fff; border-color: #0070d2; }
+    .filter-chip.fc-failed.active  { background: #c23934; border-color: #c23934; }
+    .filter-chip.fc-success.active { background: #2e844a; border-color: #2e844a; }
+
+    /* Modal Table */
+    .modal-body { flex: 1; overflow-y: auto; }
+    .modal-table-wrap { min-width: 700px; }
+    .modal-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .modal-table thead th {
+      background: #f3f3f3;
+      padding: 8px 10px;
+      text-align: left;
+      font-weight: 700;
+      font-size: 11px;
+      color: #706e6b;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      border-bottom: 1px solid #dddbda;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      white-space: nowrap;
+    }
+    .modal-table tbody tr { border-bottom: 1px solid #f3f3f3; transition: background .1s; }
+    .modal-table tbody tr:hover { background: #f4f6f9; }
+    .modal-table tbody td { padding: 8px 10px; vertical-align: middle; }
+    .modal-table .td-acct-id { font-family: monospace; font-size: 11px; color: #706e6b; }
+    .modal-table .td-parent { font-family: monospace; font-size: 11px; }
+    .modal-table .td-parent .parent-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #e8f4ff;
+      border: 1px solid #b0d4f5;
+      border-radius: 4px;
+      padding: 1px 6px;
+      color: #0070d2;
+    }
+
+    /* Reprocess arrow button */
+    .reprocess-btn {
+      background: none;
+      border: 1px solid #dddbda;
+      border-radius: 4px;
+      padding: 4px 8px;
+      cursor: pointer;
+      color: #706e6b;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      transition: all .15s;
+      white-space: nowrap;
+    }
+    .reprocess-btn:hover { background: #fff3d5; border-color: #ffb75d; color: #8a6000; }
+    .reprocess-btn.processing { background: #e8f4ff; border-color: #b0d4f5; color: #0070d2; }
+    .reprocess-btn svg { width: 12px; height: 12px; }
+
+    /* Spinning icon */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin .8s linear infinite; display: inline-block; }
+
+    /* Toast */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 2000;
+    }
+    .toast {
+      background: #fff;
+      border-left: 4px solid #2e844a;
+      border-radius: 4px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.18);
+      padding: 12px 16px;
+      font-size: 13px;
+      color: #3e3e3c;
+      min-width: 260px;
+      animation: toast-in .2s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .toast.toast-info { border-left-color: #0070d2; }
+    .toast.toast-warn { border-left-color: #ffb75d; }
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateX(30px); }
+      to   { opacity: 1; transform: none; }
+    }
+    .toast-icon { font-size: 16px; }
+  </style>
+</head>
+<body>
+
+<!-- ── Top Nav ── -->
+<nav class="top-nav">
+  <span class="app-name">⚡ Marketing Intelligence</span>
+  <div class="nav-links">
+    <a href="#">Home</a>
+    <a href="#" class="active">Data Management</a>
+    <a href="#">Marketing Analytics</a>
+  </div>
+  <div class="spacer"></div>
+  <button class="icon-btn">🔍</button>
+  <button class="icon-btn">🔔</button>
+  <button class="icon-btn">⚙️</button>
+  <button class="icon-btn">👤</button>
+</nav>
+
+<!-- ── Sub Nav ── -->
+<div class="sub-nav">
+  <a href="#">Data Pipelines</a>
+  <a href="#">Connection Management</a>
+  <a href="#" class="active">Connections</a>
+  <a href="#">Anchor Campaigns</a>
+  <a href="#">Funnel Attribution</a>
+  <a href="#">Attribution</a>
+</div>
+
+<!-- ── Page Header ── -->
+<div class="page-header">
+  <div class="breadcrumb">Connections &rsaquo; Meta_Ads_Connection 536537030</div>
+  <div class="title-row">
+    <h1>📊 Meta_Ads_Connection 536537030</h1>
+    <span class="badge-active">Active</span>
+    <div class="header-actions">
+      <button class="btn">↺ Reprocess</button>
+      <button class="btn">⬡ Reprocess</button>
+      <button class="btn btn-primary">Edit ▾</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Meta Info Strip ── -->
+<div class="meta-strip">
+  <div class="meta-item"><label>MI Word</label><span>MI Word</span></div>
+  <div class="meta-item"><label>Name</label><span>Meta_Ads_Connection_Default</span></div>
+  <div class="meta-item"><label>Data Source</label><span>Default</span></div>
+  <div class="meta-item"><label>Status</label><span>Active</span></div>
+  <div class="meta-item"><label>Created On</label><span>10/20/2025, 05:00 AM</span></div>
+  <div class="meta-item"><label>Last Modified</label><span>5/7/2026, 10:12 AM</span></div>
+  <div class="meta-item"><label>Last Data Date</label><span>5/7/2026</span></div>
+</div>
+
+<!-- ── Tab Bar ── -->
+<div class="tab-bar">
+  <a href="#">Setup</a>
+  <a href="#" class="active">Process Log ●</a>
+  <a href="#">Data Details</a>
+</div>
+
+<!-- ── Content ── -->
+<div class="content">
+  <div class="table-card">
+    <!-- Toolbar -->
+    <div class="table-toolbar">
+      <span class="toolbar-title">Process Log</span>
+      <input type="text" class="search-box" placeholder="🔍  Search…" id="mainSearch" oninput="filterMainTable()" />
+      <select class="per-page-select" onchange="filterMainTable()">
+        <option>10</option><option>25</option><option>50</option>
+      </select>
+      <select class="per-page-select" id="statusFilter" onchange="filterMainTable()">
+        <option value="">All Statuses</option>
+        <option value="Success">Success</option>
+        <option value="Failed">Failed</option>
+        <option value="Running">Running</option>
+        <option value="Pending">Pending</option>
+        <option value="Skipped">Skipped</option>
+      </select>
+    </div>
+
+    <!-- Main Table -->
+    <div style="overflow-x:auto;">
+      <table id="mainTable">
+        <thead>
+          <tr>
+            <th onclick="sortTable('mainTable',0)">User Name <span class="sort-arrow">↕</span></th>
+            <th onclick="sortTable('mainTable',1)">Entity Names <span class="sort-arrow">↕</span></th>
+            <th onclick="sortTable('mainTable',2)">Entity Type <span class="sort-arrow">↕</span></th>
+            <th onclick="sortTable('mainTable',3)">Data Start Date <span class="sort-arrow">↕</span></th>
+            <th onclick="sortTable('mainTable',4)">Data End Date <span class="sort-arrow">↕</span></th>
+            <th onclick="sortTable('mainTable',5)">Status <span class="sort-arrow">↕</span></th>
+            <th onclick="sortTable('mainTable',6)">Run Type <span class="sort-arrow">↕</span></th>
+            <th onclick="sortTable('mainTable',7)">Last Modified <span class="sort-arrow">↕</span></th>
+            <th>Accounts</th>
+          </tr>
+        </thead>
+        <tbody id="mainTbody"></tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" id="mainPagination"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     ACCOUNTS MODAL
+═══════════════════════════════════════════ -->
+<div class="modal-overlay" id="accountsModal" onclick="handleOverlayClick(event)">
+  <div class="modal">
+
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <div class="modal-header-info">
+        <div class="modal-title" id="modalTitle">Account Stats</div>
+        <div class="modal-subtitle">
+          Process Log Row&nbsp;
+          <span class="linked-row-id" id="modalRowId">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M7 7H3a1 1 0 000 2h4v4a1 1 0 002 0V9h4a1 1 0 000-2H9V3a1 1 0 00-2 0v4z"/></svg>
+            —
+          </span>
+          &nbsp;·&nbsp;<span id="modalEntityType" style="color:#706e6b;"></span>
+          &nbsp;·&nbsp;<span id="modalDateRange" style="color:#706e6b;"></span>
+        </div>
+      </div>
+      <div class="modal-header-actions">
+        <button class="btn btn-primary" onclick="reprocessAll()">↺ Reprocess All</button>
+        <button class="btn btn-danger"  onclick="reprocessAllFailed()">↺ Reprocess All Failed</button>
+        <button class="modal-close" onclick="closeModal()" title="Close">✕</button>
+      </div>
+    </div>
+
+    <!-- Summary Bar -->
+    <div class="modal-summary" id="modalSummary"></div>
+
+    <!-- Search + Filters -->
+    <div class="modal-search-bar">
+      <input type="text" id="modalSearch" placeholder="🔍  Search account…" oninput="filterModal()" />
+      <div class="modal-filter-btns">
+        <button class="filter-chip active" data-filter="All"     onclick="setFilter(this,'All')">All</button>
+        <button class="filter-chip fc-success" data-filter="Success" onclick="setFilter(this,'Success')">✔ Success</button>
+        <button class="filter-chip fc-failed"  data-filter="Failed"  onclick="setFilter(this,'Failed')">✖ Failed</button>
+        <button class="filter-chip" data-filter="Running" onclick="setFilter(this,'Running')">⟳ Running</button>
+        <button class="filter-chip" data-filter="Pending" onclick="setFilter(this,'Pending')">⏳ Pending</button>
+        <button class="filter-chip" data-filter="Skipped" onclick="setFilter(this,'Skipped')">⊘ Skipped</button>
+      </div>
+    </div>
+
+    <!-- Modal Table -->
+    <div class="modal-body">
+      <div style="overflow-x:auto;" class="modal-table-wrap">
+        <table class="modal-table">
+          <thead>
+            <tr>
+              <th>Account ID</th>
+              <th>Account Name</th>
+              <th>Platform</th>
+              <th>Parent Row ID</th>
+              <th>Data Start</th>
+              <th>Data End</th>
+              <th>Records</th>
+              <th>Status</th>
+              <th>Last Run</th>
+              <th style="text-align:center;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="modalTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════ -->
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+
+const ACCOUNTS = [
+  { id:"act_10293847560", name:"Sunrise Retail Group",      platform:"Meta Ads" },
+  { id:"act_20384756102", name:"BluePeak Media LLC",        platform:"Meta Ads" },
+  { id:"act_30495867213", name:"TechVision Marketing",      platform:"Meta Ads" },
+  { id:"act_40506978324", name:"Urban Style Co.",           platform:"Meta Ads" },
+  { id:"act_50617089435", name:"GreenLeaf Digital",         platform:"Meta Ads" },
+  { id:"act_60728190546", name:"NovaSpark Agency",          platform:"Meta Ads" },
+  { id:"act_70839201657", name:"PineBridge Commerce",       platform:"Meta Ads" },
+  { id:"act_80940312768", name:"SkyLine Brands Inc.",       platform:"Meta Ads" },
+];
+
+const STATUSES = ["Success","Success","Success","Failed","Running","Pending","Skipped","Success"];
+
+function randomInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function pad(n){ return String(n).padStart(2,'0'); }
+function fmtDate(d){ return `${pad(d.getMonth()+1)}/${pad(d.getDate())}/${d.getFullYear()}, ${pad(d.getHours()%12||12)}:${pad(d.getMinutes())} ${d.getHours()<12?'AM':'PM'}`; }
+function randomDate(start,end){ return new Date(start.getTime()+Math.random()*(end.getTime()-start.getTime())); }
+
+function makeAccountRows(parentRowId, entityType, startDate, endDate){
+  return ACCOUNTS.map((a,i)=>({
+    accountId: a.id,
+    accountName: a.name,
+    platform: a.platform,
+    parentRowId,
+    dataStart: startDate,
+    dataEnd: endDate,
+    records: randomInt(120,9800),
+    status: STATUSES[i % STATUSES.length],
+    lastRun: fmtDate(randomDate(new Date(2026,4,1), new Date(2026,4,11))),
+  }));
+}
+
+const PROCESS_LOG = [
+  { id:"PL-001", userName:"Automated Process", entityName:"FacebookAds_Attr.", entityType:"DataStream",   startDate:"3/7/2026, 10:00 AM", endDate:"3/7/2026, 11:59 PM", status:"Success", runType:"Scheduled" },
+  { id:"PL-002", userName:"Automated Process", entityName:"FacebookAds_Attr.", entityType:"DataStream",   startDate:"3/7/2026, 10:00 AM", endDate:"3/7/2026, 11:59 PM", status:"Failed",  runType:"Scheduled" },
+  { id:"PL-003", userName:"Automated Process", entityName:"Meta_Ads_Conn.",    entityType:"DataPlatform", startDate:"3/7/2026, 10:00 AM", endDate:"3/7/2026, 11:59 PM", status:"Success", runType:"Scheduled" },
+  { id:"PL-004", userName:"Automated Process", entityName:"FacebookAds_Attr.", entityType:"DataStream",   startDate:"3/7/2026, 10:00 AM", endDate:"3/7/2026, 11:59 PM", status:"Success", runType:"Manual"    },
+  { id:"PL-005", userName:"Automated Process", entityName:"Meta_Ads_Conn.",    entityType:"DataPlatform", startDate:"3/6/2026, 10:00 AM", endDate:"3/6/2026, 11:59 PM", status:"Running", runType:"Scheduled" },
+  { id:"PL-006", userName:"Automated Process", entityName:"FacebookAds_Attr.", entityType:"DataStream",   startDate:"3/6/2026, 10:00 AM", endDate:"3/6/2026, 11:59 PM", status:"Failed",  runType:"Scheduled" },
+  { id:"PL-007", userName:"Automated Process", entityName:"Meta_Ads_Conn.",    entityType:"DataPlatform", startDate:"3/5/2026, 10:00 AM", endDate:"3/5/2026, 11:59 PM", status:"Success", runType:"Scheduled" },
+  { id:"PL-008", userName:"Automated Process", entityName:"FacebookAds_Attr.", entityType:"DataStream",   startDate:"3/5/2026, 10:00 AM", endDate:"3/5/2026, 11:59 PM", status:"Pending", runType:"Scheduled" },
+  { id:"PL-009", userName:"Automated Process", entityName:"Meta_Ads_Conn.",    entityType:"DataPlatform", startDate:"3/4/2026, 10:00 AM", endDate:"3/4/2026, 11:59 PM", status:"Skipped", runType:"Scheduled" },
+  { id:"PL-010", userName:"Automated Process", entityName:"FacebookAds_Attr.", entityType:"DataStream",   startDate:"3/4/2026, 10:00 AM", endDate:"3/4/2026, 11:59 PM", status:"Success", runType:"Manual"    },
+  { id:"PL-011", userName:"Automated Process", entityName:"Meta_Ads_Conn.",    entityType:"DataPlatform", startDate:"3/3/2026, 10:00 AM", endDate:"3/3/2026, 11:59 PM", status:"Failed",  runType:"Scheduled" },
+  { id:"PL-012", userName:"Automated Process", entityName:"FacebookAds_Attr.", entityType:"DataStream",   startDate:"3/3/2026, 10:00 AM", endDate:"3/3/2026, 11:59 PM", status:"Success", runType:"Scheduled" },
+];
+
+// Pre-build account rows per process log entry
+const ACCOUNT_ROWS = {};
+PROCESS_LOG.forEach(row=>{
+  ACCOUNT_ROWS[row.id] = makeAccountRows(row.id, row.entityType, row.startDate, row.endDate);
+});
+
+// ── PILL HELPER ───────────────────────────────────────────────────────────────
+function pillHtml(status){
+  const cls = status.toLowerCase();
+  return `<span class="pill ${cls}"><span class="pill-dot"></span>${status}</span>`;
+}
+
+// ── MAIN TABLE ────────────────────────────────────────────────────────────────
+let mainData = [...PROCESS_LOG];
+let mainPage = 1;
+const MAIN_PAGE_SIZE = 10;
+
+function renderMainTable(){
+  const tbody = document.getElementById('mainTbody');
+  const search = document.getElementById('mainSearch').value.toLowerCase();
+  const statusF = document.getElementById('statusFilter').value;
+  let filtered = mainData.filter(r=>{
+    const hay = `${r.userName} ${r.entityName} ${r.entityType} ${r.status} ${r.runType}`.toLowerCase();
+    return hay.includes(search) && (!statusF || r.status === statusF);
+  });
+  const totalPages = Math.max(1, Math.ceil(filtered.length / MAIN_PAGE_SIZE));
+  if(mainPage > totalPages) mainPage = totalPages;
+  const paged = filtered.slice((mainPage-1)*MAIN_PAGE_SIZE, mainPage*MAIN_PAGE_SIZE);
+
+  tbody.innerHTML = paged.map(r=>`
+    <tr id="row-${r.id}">
+      <td>${r.userName}</td>
+      <td class="td-link">${r.entityName}</td>
+      <td>${r.entityType}</td>
+      <td>${r.startDate}</td>
+      <td>${r.endDate}</td>
+      <td>${pillHtml(r.status)}</td>
+      <td>${r.runType}</td>
+      <td>${r.startDate}</td>
+      <td>
+        <button class="accounts-btn" onclick="openModal('${r.id}')">
+          👥 Accounts <span class="acct-count">${ACCOUNT_ROWS[r.id].length}</span>
+        </button>
+      </td>
+    </tr>`).join('');
+
+  renderPagination('mainPagination', mainPage, totalPages, p=>{ mainPage=p; renderMainTable(); });
+}
+
+function filterMainTable(){ mainPage=1; renderMainTable(); }
+
+// ── SORT ──────────────────────────────────────────────────────────────────────
+const sortState = {};
+function sortTable(tableId, colIdx){
+  const key = `${tableId}_${colIdx}`;
+  sortState[key] = sortState[key]==='asc'?'desc':'asc';
+  mainData.sort((a,b)=>{
+    const vals = [a,b].map(r=>Object.values(r)[colIdx]||'');
+    const [va,vb] = sortState[key]==='asc' ? vals : vals.reverse();
+    return va.localeCompare(vb);
+  });
+  renderMainTable();
+}
+
+// ── PAGINATION ────────────────────────────────────────────────────────────────
+function renderPagination(containerId, current, total, cb){
+  const el = document.getElementById(containerId);
+  let html = `<span>Page ${current} of ${total}</span>`;
+  html += `<button class="page-btn" onclick="(${cb.toString()})(${Math.max(1,current-1)})" ${current===1?'disabled':''}>‹</button>`;
+  for(let p=1;p<=total;p++){
+    if(total<=7 || Math.abs(p-current)<=2 || p===1 || p===total){
+      html += `<button class="page-btn ${p===current?'active':''}" onclick="(${cb.toString()})(${p})">${p}</button>`;
+    } else if(Math.abs(p-current)===3){
+      html += `<span style="padding:0 4px;color:#706e6b">…</span>`;
+    }
+  }
+  html += `<button class="page-btn" onclick="(${cb.toString()})(${Math.min(total,current+1)})" ${current===total?'disabled':''}>›</button>`;
+  el.innerHTML = html;
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+let currentModalRowId = null;
+let modalActiveFilter = 'All';
+let modalAccountData  = [];
+
+function openModal(rowId){
+  const row = PROCESS_LOG.find(r=>r.id===rowId);
+  currentModalRowId = rowId;
+  modalAccountData  = ACCOUNT_ROWS[rowId].map(r=>({...r})); // clone
+  modalActiveFilter = 'All';
+
+  document.getElementById('modalTitle').textContent = `Account Stats — ${row.entityName}`;
+  document.getElementById('modalRowId').innerHTML = `
+    <svg viewBox="0 0 16 16" fill="currentColor" style="width:10px;height:10px;opacity:.6"><path d="M2 8a6 6 0 1012 0A6 6 0 002 8zm6-4a.5.5 0 01.5.5v3.793l2.146 2.147a.5.5 0 01-.707.707L7.5 8.707V4.5A.5.5 0 018 4z"/></svg>
+    ${rowId}`;
+  document.getElementById('modalEntityType').textContent = row.entityType;
+  document.getElementById('modalDateRange').textContent  = `${row.startDate} → ${row.endDate}`;
+
+  // reset filter chips
+  document.querySelectorAll('.filter-chip').forEach(c=>{
+    c.classList.toggle('active', c.dataset.filter==='All');
+  });
+  document.getElementById('modalSearch').value = '';
+
+  renderModalSummary();
+  renderModalTable();
+  document.getElementById('accountsModal').classList.add('open');
+}
+
+function closeModal(){
+  document.getElementById('accountsModal').classList.remove('open');
+  currentModalRowId = null;
+}
+
+function handleOverlayClick(e){
+  if(e.target === document.getElementById('accountsModal')) closeModal();
+}
+
+function setFilter(btn, filter){
+  modalActiveFilter = filter;
+  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  renderModalTable();
+}
+
+function renderModalSummary(){
+  const data = modalAccountData;
+  const counts = { Total:data.length, Success:0, Failed:0, Running:0, Pending:0 };
+  data.forEach(r=>{ if(counts[r.status]!==undefined) counts[r.status]++; });
+  document.getElementById('modalSummary').innerHTML = `
+    <div class="sum-item"><div class="sum-value">${counts.Total}</div><div class="sum-label">Total Accounts</div></div>
+    <div class="sum-item c-success"><div class="sum-value">${counts.Success}</div><div class="sum-label">Success</div></div>
+    <div class="sum-item c-failed"><div class="sum-value">${counts.Failed}</div><div class="sum-label">Failed</div></div>
+    <div class="sum-item c-running"><div class="sum-value">${counts.Running}</div><div class="sum-label">Running</div></div>
+    <div class="sum-item c-pending"><div class="sum-value">${counts.Pending}</div><div class="sum-label">Pending</div></div>`;
+}
+
+function renderModalTable(){
+  const search = document.getElementById('modalSearch').value.toLowerCase();
+  const tbody = document.getElementById('modalTbody');
+  const filtered = modalAccountData.filter(r=>{
+    const hay = `${r.accountId} ${r.accountName} ${r.platform} ${r.status}`.toLowerCase();
+    return hay.includes(search) && (modalActiveFilter==='All' || r.status===modalActiveFilter);
+  });
+  tbody.innerHTML = filtered.map((r,i)=>`
+    <tr id="modal-row-${r.accountId.replace(/[^a-z0-9]/gi,'_')}">
+      <td class="td-acct-id">${r.accountId}</td>
+      <td>${r.accountName}</td>
+      <td>${r.platform}</td>
+      <td class="td-parent">
+        <span class="parent-tag">🔗 ${r.parentRowId}</span>
+      </td>
+      <td>${r.dataStart}</td>
+      <td>${r.dataEnd}</td>
+      <td style="text-align:right;">${r.records.toLocaleString()}</td>
+      <td>${pillHtml(r.status)}</td>
+      <td>${r.lastRun}</td>
+      <td style="text-align:center;">
+        <button class="reprocess-btn" id="rbtn-${r.accountId.replace(/[^a-z0-9]/gi,'_')}"
+          onclick="reprocessSingle('${r.accountId}','${currentModalRowId}')">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 8a6 6 0 1010.586-4.243l1.122-1.121a.5.5 0 00-.708-.708L11.586 3.34A6 6 0 102 8zm6-5a5 5 0 110 10A5 5 0 018 3z"/></svg>
+          Reprocess
+        </button>
+      </td>
+    </tr>`).join('');
+
+  if(filtered.length===0){
+    tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:24px;color:#706e6b;">No matching accounts found.</td></tr>`;
+  }
+}
+
+function filterModal(){ renderModalTable(); }
+
+// ── REPROCESS LOGIC ───────────────────────────────────────────────────────────
+
+function simulateReprocess(accountId, rowId, btnId){
+  const btn = document.getElementById(btnId);
+  if(!btn) return;
+  btn.classList.add('processing');
+  btn.innerHTML = `<span class="spin">⟳</span> Processing…`;
+  btn.disabled = true;
+
+  setTimeout(()=>{
+    const acctData = ACCOUNT_ROWS[rowId];
+    const acct = acctData.find(a=>a.accountId===accountId);
+    if(acct){
+      acct.status = Math.random()>.2 ? 'Success' : 'Failed';
+      acct.lastRun = new Date().toLocaleString('en-US',{month:'2-digit',day:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+      // update local modal copy too
+      const local = modalAccountData.find(a=>a.accountId===accountId);
+      if(local){ local.status=acct.status; local.lastRun=acct.lastRun; }
+    }
+    renderModalSummary();
+    renderModalTable();
+    showToast(acct?.status==='Success'
+      ? `✅ Account ${accountId} reprocessed successfully.`
+      : `❌ Account ${accountId} reprocess failed.`,
+      acct?.status==='Success' ? 'success' : 'warn');
+  }, 1500 + Math.random()*1000);
+}
+
+function reprocessSingle(accountId, rowId){
+  const btnId = `rbtn-${accountId.replace(/[^a-z0-9]/gi,'_')}`;
+  simulateReprocess(accountId, rowId, btnId);
+}
+
+function reprocessAll(){
+  if(!currentModalRowId) return;
+  const data = ACCOUNT_ROWS[currentModalRowId];
+  showToast(`⟳ Reprocessing all ${data.length} accounts…`, 'info');
+  // stagger
+  data.forEach((a,i)=>{
+    setTimeout(()=>{
+      const btnId = `rbtn-${a.accountId.replace(/[^a-z0-9]/gi,'_')}`;
+      const btn = document.getElementById(btnId);
+      if(btn){ btn.classList.add('processing'); btn.innerHTML=`<span class="spin">⟳</span> Processing…`; btn.disabled=true; }
+    }, i*200);
+    setTimeout(()=>{
+      a.status = Math.random()>.15 ? 'Success':'Failed';
+      a.lastRun = new Date().toLocaleString('en-US',{month:'2-digit',day:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+      const local = modalAccountData.find(x=>x.accountId===a.accountId);
+      if(local){ local.status=a.status; local.lastRun=a.lastRun; }
+      if(i===data.length-1){
+        renderModalSummary();
+        renderModalTable();
+        showToast('✅ All accounts reprocessed.','success');
+      }
+    }, 2000 + i*200);
+  });
+}
+
+function reprocessAllFailed(){
+  if(!currentModalRowId) return;
+  const failed = ACCOUNT_ROWS[currentModalRowId].filter(a=>a.status==='Failed');
+  if(!failed.length){ showToast('ℹ️ No failed accounts to reprocess.','info'); return; }
+  showToast(`⟳ Reprocessing ${failed.length} failed account(s)…`,'warn');
+  failed.forEach((a,i)=>{
+    setTimeout(()=>{
+      const btnId = `rbtn-${a.accountId.replace(/[^a-z0-9]/gi,'_')}`;
+      const btn = document.getElementById(btnId);
+      if(btn){ btn.classList.add('processing'); btn.innerHTML=`<span class="spin">⟳</span> Processing…`; btn.disabled=true; }
+    }, i*250);
+    setTimeout(()=>{
+      a.status='Success';
+      a.lastRun = new Date().toLocaleString('en-US',{month:'2-digit',day:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+      const local = modalAccountData.find(x=>x.accountId===a.accountId);
+      if(local){ local.status='Success'; local.lastRun=a.lastRun; }
+      if(i===failed.length-1){
+        renderModalSummary();
+        renderModalTable();
+        showToast(`✅ ${failed.length} failed account(s) reprocessed.`,'success');
+      }
+    }, 2000 + i*250);
+  });
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+function showToast(msg, type='success'){
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  t.innerHTML = `<span class="toast-icon">${type==='success'?'✅':type==='warn'?'⚠️':'ℹ️'}</span> ${msg}`;
+  c.appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transition='opacity .4s'; setTimeout(()=>t.remove(),400); }, 3500);
+}
+
+// ── KEYBOARD ──────────────────────────────────────────────────────────────────
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+renderMainTable();
+</script>
+</body>
+</html>
