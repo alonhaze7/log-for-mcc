@@ -196,6 +196,29 @@
     .pill.pending .pill-dot  { background: #ffb75d; }
     .pill.skipped  { background: #f3f3f3; color: #706e6b; }
     .pill.skipped .pill-dot  { background: #9ea0a5; }
+    .pill.partly-success { background: #fff3d5; color: #8a6000; }
+    .pill.partly-success .pill-dot { background: #ffb75d; }
+    .pill.reprocess { background: #f3e8ff; color: #6b21a8; }
+    .pill.reprocess .pill-dot { background: #a855f7; }
+
+    /* Main table row reprocess button */
+    .row-reprocess-btn {
+      background: none;
+      border: 1px solid #dddbda;
+      border-radius: 4px;
+      padding: 4px 10px;
+      cursor: pointer;
+      color: #706e6b;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      transition: all .15s;
+      white-space: nowrap;
+    }
+    .row-reprocess-btn:hover { background: #fff3d5; border-color: #ffb75d; color: #8a6000; }
+    .row-reprocess-btn.processing { background: #e8f4ff; border-color: #b0d4f5; color: #0070d2; }
 
     /* Accounts button */
     .accounts-btn {
@@ -541,9 +564,9 @@
         <option value="">All Statuses</option>
         <option value="Success">Success</option>
         <option value="Failed">Failed</option>
-        <option value="Running">Running</option>
+        <option value="Partly Success">Partly Success</option>
         <option value="Pending">Pending</option>
-        <option value="Skipped">Skipped</option>
+        <option value="Reprocess">Reprocess</option>
       </select>
     </div>
 
@@ -553,14 +576,13 @@
         <thead>
           <tr>
             <th onclick="sortTable('mainTable',0)">User Name <span class="sort-arrow">↕</span></th>
-            <th onclick="sortTable('mainTable',1)">Entity Names <span class="sort-arrow">↕</span></th>
-            <th onclick="sortTable('mainTable',2)">Entity Type <span class="sort-arrow">↕</span></th>
             <th onclick="sortTable('mainTable',3)">Data Start Date <span class="sort-arrow">↕</span></th>
             <th onclick="sortTable('mainTable',4)">Data End Date <span class="sort-arrow">↕</span></th>
             <th onclick="sortTable('mainTable',5)">Status <span class="sort-arrow">↕</span></th>
             <th onclick="sortTable('mainTable',6)">Run Type <span class="sort-arrow">↕</span></th>
             <th onclick="sortTable('mainTable',7)">Last Modified <span class="sort-arrow">↕</span></th>
             <th>Accounts</th>
+            <th style="text-align:center;">Action</th>
           </tr>
         </thead>
         <tbody id="mainTbody"></tbody>
@@ -606,12 +628,12 @@
     <div class="modal-search-bar">
       <input type="text" id="modalSearch" placeholder="🔍  Search account…" oninput="filterModal()" />
       <div class="modal-filter-btns">
-        <button class="filter-chip active" data-filter="All"     onclick="setFilter(this,'All')">All</button>
-        <button class="filter-chip fc-success" data-filter="Success" onclick="setFilter(this,'Success')">✔ Success</button>
-        <button class="filter-chip fc-failed"  data-filter="Failed"  onclick="setFilter(this,'Failed')">✖ Failed</button>
-        <button class="filter-chip" data-filter="Running" onclick="setFilter(this,'Running')">⟳ Running</button>
-        <button class="filter-chip" data-filter="Pending" onclick="setFilter(this,'Pending')">⏳ Pending</button>
-        <button class="filter-chip" data-filter="Skipped" onclick="setFilter(this,'Skipped')">⊘ Skipped</button>
+        <button class="filter-chip active" data-filter="All"           onclick="setFilter(this,'All')">All</button>
+        <button class="filter-chip fc-success" data-filter="Success"   onclick="setFilter(this,'Success')">✔ Success</button>
+        <button class="filter-chip fc-failed"  data-filter="Failed"    onclick="setFilter(this,'Failed')">✖ Failed</button>
+        <button class="filter-chip" data-filter="Partly Success"       onclick="setFilter(this,'Partly Success')">◑ Partly Success</button>
+        <button class="filter-chip" data-filter="Pending"              onclick="setFilter(this,'Pending')">⏳ Pending</button>
+        <button class="filter-chip" data-filter="Reprocess"            onclick="setFilter(this,'Reprocess')">↺ Reprocess</button>
       </div>
     </div>
 
@@ -627,7 +649,7 @@
               <th>Parent Row ID</th>
               <th>Data Start</th>
               <th>Data End</th>
-              <th>Records</th>
+              <th>Rows</th>
               <th>Status</th>
               <th>Last Run</th>
               <th style="text-align:center;">Action</th>
@@ -661,7 +683,7 @@ const ACCOUNTS = [
   { id:"act_80940312768", name:"SkyLine Brands Inc.",       platform:"Meta Ads" },
 ];
 
-const STATUSES = ["Success","Success","Success","Failed","Running","Pending","Skipped","Success"];
+const STATUSES = ["Success","Success","Success","Failed","Partly Success","Pending","Reprocess","Success"];
 
 function randomInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
 function pad(n){ return String(n).padStart(2,'0'); }
@@ -683,18 +705,18 @@ function makeAccountRows(parentRowId, entityType, startDate, endDate){
 }
 
 const PROCESS_LOG = [
-  { id:"PL-001", userName:"Automated Process", entityName:"FacebookAds_Attr.", entityType:"DataStream",   startDate:"3/7/2026, 10:00 AM", endDate:"3/7/2026, 11:59 PM", status:"Success", runType:"Scheduled" },
-  { id:"PL-002", userName:"Automated Process", entityName:"FacebookAds_Attr.", entityType:"DataStream",   startDate:"3/7/2026, 10:00 AM", endDate:"3/7/2026, 11:59 PM", status:"Failed",  runType:"Scheduled" },
-  { id:"PL-003", userName:"Automated Process", entityName:"Meta_Ads_Conn.",    entityType:"DataPlatform", startDate:"3/7/2026, 10:00 AM", endDate:"3/7/2026, 11:59 PM", status:"Success", runType:"Scheduled" },
-  { id:"PL-004", userName:"Automated Process", entityName:"FacebookAds_Attr.", entityType:"DataStream",   startDate:"3/7/2026, 10:00 AM", endDate:"3/7/2026, 11:59 PM", status:"Success", runType:"Manual"    },
-  { id:"PL-005", userName:"Automated Process", entityName:"Meta_Ads_Conn.",    entityType:"DataPlatform", startDate:"3/6/2026, 10:00 AM", endDate:"3/6/2026, 11:59 PM", status:"Running", runType:"Scheduled" },
-  { id:"PL-006", userName:"Automated Process", entityName:"FacebookAds_Attr.", entityType:"DataStream",   startDate:"3/6/2026, 10:00 AM", endDate:"3/6/2026, 11:59 PM", status:"Failed",  runType:"Scheduled" },
-  { id:"PL-007", userName:"Automated Process", entityName:"Meta_Ads_Conn.",    entityType:"DataPlatform", startDate:"3/5/2026, 10:00 AM", endDate:"3/5/2026, 11:59 PM", status:"Success", runType:"Scheduled" },
-  { id:"PL-008", userName:"Automated Process", entityName:"FacebookAds_Attr.", entityType:"DataStream",   startDate:"3/5/2026, 10:00 AM", endDate:"3/5/2026, 11:59 PM", status:"Pending", runType:"Scheduled" },
-  { id:"PL-009", userName:"Automated Process", entityName:"Meta_Ads_Conn.",    entityType:"DataPlatform", startDate:"3/4/2026, 10:00 AM", endDate:"3/4/2026, 11:59 PM", status:"Skipped", runType:"Scheduled" },
-  { id:"PL-010", userName:"Automated Process", entityName:"FacebookAds_Attr.", entityType:"DataStream",   startDate:"3/4/2026, 10:00 AM", endDate:"3/4/2026, 11:59 PM", status:"Success", runType:"Manual"    },
-  { id:"PL-011", userName:"Automated Process", entityName:"Meta_Ads_Conn.",    entityType:"DataPlatform", startDate:"3/3/2026, 10:00 AM", endDate:"3/3/2026, 11:59 PM", status:"Failed",  runType:"Scheduled" },
-  { id:"PL-012", userName:"Automated Process", entityName:"FacebookAds_Attr.", entityType:"DataStream",   startDate:"3/3/2026, 10:00 AM", endDate:"3/3/2026, 11:59 PM", status:"Success", runType:"Scheduled" },
+  { id:"PL-001", userName:"Automated Process", entityName:"FacebookAds_Attr.", entityType:"DataStream",   startDate:"3/7/2026, 10:00 AM", endDate:"3/7/2026, 11:59 PM", status:"Success",       runType:"Scheduled" },
+  { id:"PL-002", userName:"Automated Process", entityName:"FacebookAds_Attr.", entityType:"DataStream",   startDate:"3/7/2026, 10:00 AM", endDate:"3/7/2026, 11:59 PM", status:"Failed",        runType:"Scheduled" },
+  { id:"PL-003", userName:"Automated Process", entityName:"Meta_Ads_Conn.",    entityType:"DataPlatform", startDate:"3/7/2026, 10:00 AM", endDate:"3/7/2026, 11:59 PM", status:"Partly Success",runType:"Scheduled" },
+  { id:"PL-004", userName:"Automated Process", entityName:"FacebookAds_Attr.", entityType:"DataStream",   startDate:"3/7/2026, 10:00 AM", endDate:"3/7/2026, 11:59 PM", status:"Success",       runType:"Manual"    },
+  { id:"PL-005", userName:"Automated Process", entityName:"Meta_Ads_Conn.",    entityType:"DataPlatform", startDate:"3/6/2026, 10:00 AM", endDate:"3/6/2026, 11:59 PM", status:"Pending",       runType:"Scheduled" },
+  { id:"PL-006", userName:"Automated Process", entityName:"FacebookAds_Attr.", entityType:"DataStream",   startDate:"3/6/2026, 10:00 AM", endDate:"3/6/2026, 11:59 PM", status:"Failed",        runType:"Scheduled" },
+  { id:"PL-007", userName:"Automated Process", entityName:"Meta_Ads_Conn.",    entityType:"DataPlatform", startDate:"3/5/2026, 10:00 AM", endDate:"3/5/2026, 11:59 PM", status:"Reprocess",     runType:"Scheduled" },
+  { id:"PL-008", userName:"Automated Process", entityName:"FacebookAds_Attr.", entityType:"DataStream",   startDate:"3/5/2026, 10:00 AM", endDate:"3/5/2026, 11:59 PM", status:"Pending",       runType:"Scheduled" },
+  { id:"PL-009", userName:"Automated Process", entityName:"Meta_Ads_Conn.",    entityType:"DataPlatform", startDate:"3/4/2026, 10:00 AM", endDate:"3/4/2026, 11:59 PM", status:"Partly Success",runType:"Scheduled" },
+  { id:"PL-010", userName:"Automated Process", entityName:"FacebookAds_Attr.", entityType:"DataStream",   startDate:"3/4/2026, 10:00 AM", endDate:"3/4/2026, 11:59 PM", status:"Success",       runType:"Manual"    },
+  { id:"PL-011", userName:"Automated Process", entityName:"Meta_Ads_Conn.",    entityType:"DataPlatform", startDate:"3/3/2026, 10:00 AM", endDate:"3/3/2026, 11:59 PM", status:"Failed",        runType:"Scheduled" },
+  { id:"PL-012", userName:"Automated Process", entityName:"FacebookAds_Attr.", entityType:"DataStream",   startDate:"3/3/2026, 10:00 AM", endDate:"3/3/2026, 11:59 PM", status:"Reprocess",     runType:"Scheduled" },
 ];
 
 // Pre-build account rows per process log entry
@@ -705,7 +727,7 @@ PROCESS_LOG.forEach(row=>{
 
 // ── PILL HELPER ───────────────────────────────────────────────────────────────
 function pillHtml(status){
-  const cls = status.toLowerCase();
+  const cls = status.toLowerCase().replace(/\s+/g,'-');
   return `<span class="pill ${cls}"><span class="pill-dot"></span>${status}</span>`;
 }
 
@@ -729,8 +751,6 @@ function renderMainTable(){
   tbody.innerHTML = paged.map(r=>`
     <tr id="row-${r.id}">
       <td>${r.userName}</td>
-      <td class="td-link">${r.entityName}</td>
-      <td>${r.entityType}</td>
       <td>${r.startDate}</td>
       <td>${r.endDate}</td>
       <td>${pillHtml(r.status)}</td>
@@ -741,12 +761,41 @@ function renderMainTable(){
           👥 Accounts <span class="acct-count">${ACCOUNT_ROWS[r.id].length}</span>
         </button>
       </td>
+      <td style="text-align:center;">
+        <button class="row-reprocess-btn" id="main-rbtn-${r.id}"
+          onclick="reprocessMainRow('${r.id}')">
+          <svg viewBox="0 0 16 16" fill="currentColor" style="width:12px;height:12px;"><path d="M11.534 7h3.932a.25.25 0 01.192.41l-1.966 2.36a.25.25 0 01-.384 0l-1.966-2.36a.25.25 0 01.192-.41zm-11 2h3.932a.25.25 0 00.192-.41L2.692 6.23a.25.25 0 00-.384 0L.342 8.59A.25.25 0 00.534 9zM8 3a5 5 0 00-4.546 2.914.5.5 0 00-.908-.417A6 6 0 118 2v1zm0 10a5 5 0 004.546-2.914.5.5 0 00.908.417A6 6 0 118 14v-1z"/></svg>
+          Reprocess
+        </button>
+      </td>
     </tr>`).join('');
 
   renderPagination('mainPagination', mainPage, totalPages, p=>{ mainPage=p; renderMainTable(); });
 }
 
 function filterMainTable(){ mainPage=1; renderMainTable(); }
+
+// ── MAIN ROW REPROCESS ────────────────────────────────────────────────────────
+function reprocessMainRow(rowId){
+  const btnId = `main-rbtn-${rowId}`;
+  const btn = document.getElementById(btnId);
+  if(!btn) return;
+  btn.classList.add('processing');
+  btn.innerHTML = `<span class="spin">⟳</span> Processing…`;
+  btn.disabled = true;
+
+  setTimeout(()=>{
+    const row = mainData.find(r=>r.id===rowId);
+    if(row){
+      row.status = Math.random()>.2 ? 'Success' : 'Failed';
+    }
+    renderMainTable();
+    showToast(row?.status==='Success'
+      ? `✅ Row ${rowId} reprocessed successfully.`
+      : `❌ Row ${rowId} reprocess failed.`,
+      row?.status==='Success' ? 'success' : 'warn');
+  }, 1500 + Math.random()*1000);
+}
 
 // ── SORT ──────────────────────────────────────────────────────────────────────
 const sortState = {};
@@ -824,14 +873,15 @@ function setFilter(btn, filter){
 
 function renderModalSummary(){
   const data = modalAccountData;
-  const counts = { Total:data.length, Success:0, Failed:0, Running:0, Pending:0 };
+  const counts = { Total:data.length, Success:0, Failed:0, 'Partly Success':0, Pending:0, Reprocess:0 };
   data.forEach(r=>{ if(counts[r.status]!==undefined) counts[r.status]++; });
   document.getElementById('modalSummary').innerHTML = `
     <div class="sum-item"><div class="sum-value">${counts.Total}</div><div class="sum-label">Total Accounts</div></div>
     <div class="sum-item c-success"><div class="sum-value">${counts.Success}</div><div class="sum-label">Success</div></div>
     <div class="sum-item c-failed"><div class="sum-value">${counts.Failed}</div><div class="sum-label">Failed</div></div>
-    <div class="sum-item c-running"><div class="sum-value">${counts.Running}</div><div class="sum-label">Running</div></div>
-    <div class="sum-item c-pending"><div class="sum-value">${counts.Pending}</div><div class="sum-label">Pending</div></div>`;
+    <div class="sum-item c-pending"><div class="sum-value">${counts['Partly Success']}</div><div class="sum-label">Partly Success</div></div>
+    <div class="sum-item c-pending"><div class="sum-value">${counts.Pending}</div><div class="sum-label">Pending</div></div>
+    <div class="sum-item"><div class="sum-value" style="color:#6b21a8">${counts.Reprocess}</div><div class="sum-label">Reprocess</div></div>`;
 }
 
 function renderModalTable(){
