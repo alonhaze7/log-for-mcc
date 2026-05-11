@@ -644,9 +644,6 @@
           <thead>
             <tr>
               <th>Account ID</th>
-              <th>Account Name</th>
-              <th>Platform</th>
-              <th>Parent Row ID</th>
               <th>Data Start</th>
               <th>Data End</th>
               <th>Rows</th>
@@ -894,11 +891,6 @@ function renderModalTable(){
   tbody.innerHTML = filtered.map((r,i)=>`
     <tr id="modal-row-${r.accountId.replace(/[^a-z0-9]/gi,'_')}">
       <td class="td-acct-id">${r.accountId}</td>
-      <td>${r.accountName}</td>
-      <td>${r.platform}</td>
-      <td class="td-parent">
-        <span class="parent-tag">🔗 ${r.parentRowId}</span>
-      </td>
       <td>${r.dataStart}</td>
       <td>${r.dataEnd}</td>
       <td style="text-align:right;">${r.records.toLocaleString()}</td>
@@ -914,7 +906,7 @@ function renderModalTable(){
     </tr>`).join('');
 
   if(filtered.length===0){
-    tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;padding:24px;color:#706e6b;">No matching accounts found.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:#706e6b;">No matching accounts found.</td></tr>`;
   }
 }
 
