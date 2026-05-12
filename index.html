@@ -632,9 +632,6 @@
         <button class="filter-chip active" data-filter="All"           onclick="setFilter(this,'All')">All</button>
         <button class="filter-chip fc-success" data-filter="Success"   onclick="setFilter(this,'Success')">✔ Success</button>
         <button class="filter-chip fc-failed"  data-filter="Failed"    onclick="setFilter(this,'Failed')">✖ Failed</button>
-        <button class="filter-chip" data-filter="Partly Success"       onclick="setFilter(this,'Partly Success')">◑ Partly Success</button>
-        <button class="filter-chip" data-filter="Pending"              onclick="setFilter(this,'Pending')">⏳ Pending</button>
-        <button class="filter-chip" data-filter="Reprocess"            onclick="setFilter(this,'Reprocess')">↺ Reprocess</button>
       </div>
     </div>
 
@@ -678,7 +675,7 @@ const ACCOUNTS = [
   { id:"act_80940312768", name:"SkyLine Brands Inc.",       platform:"Meta Ads" },
 ];
 
-const STATUSES = ["Success","Success","Success","Failed","Partly Success","Pending","Reprocess","Success"];
+const STATUSES = ["Success","Success","Success","Failed","Success","Failed","Success","Success"];
 
 function randomInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
 function pad(n){ return String(n).padStart(2,'0'); }
@@ -868,15 +865,12 @@ function setFilter(btn, filter){
 
 function renderModalSummary(){
   const data = modalAccountData;
-  const counts = { Total:data.length, Success:0, Failed:0, 'Partly Success':0, Pending:0, Reprocess:0 };
+  const counts = { Total:data.length, Success:0, Failed:0 };
   data.forEach(r=>{ if(counts[r.status]!==undefined) counts[r.status]++; });
   document.getElementById('modalSummary').innerHTML = `
     <div class="sum-item"><div class="sum-value">${counts.Total}</div><div class="sum-label">Total Accounts</div></div>
     <div class="sum-item c-success"><div class="sum-value">${counts.Success}</div><div class="sum-label">Success</div></div>
-    <div class="sum-item c-failed"><div class="sum-value">${counts.Failed}</div><div class="sum-label">Failed</div></div>
-    <div class="sum-item c-pending"><div class="sum-value">${counts['Partly Success']}</div><div class="sum-label">Partly Success</div></div>
-    <div class="sum-item c-pending"><div class="sum-value">${counts.Pending}</div><div class="sum-label">Pending</div></div>
-    <div class="sum-item"><div class="sum-value" style="color:#6b21a8">${counts.Reprocess}</div><div class="sum-label">Reprocess</div></div>`;
+    <div class="sum-item c-failed"><div class="sum-value">${counts.Failed}</div><div class="sum-label">Failed</div></div>`;
 }
 
 function renderModalTable(){
