@@ -455,6 +455,27 @@
     .reprocess-btn.processing { background: #e8f4ff; border-color: #b0d4f5; color: #0070d2; }
     .reprocess-btn svg { width: 12px; height: 12px; }
 
+    /* Error Tag */
+    .error-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #fce9e9;
+      border: 1px solid #f5c2c2;
+      border-radius: 4px;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #c23934;
+      font-family: monospace;
+      letter-spacing: .3px;
+      white-space: nowrap;
+    }
+    .error-tag-none {
+      color: #9ea0a5;
+      font-size: 11px;
+    }
+
     /* Spinning icon */
     @keyframes spin { to { transform: rotate(360deg); } }
     .spin { animation: spin .8s linear infinite; display: inline-block; }
@@ -645,6 +666,7 @@
               <th>Data Stream</th>
               <th>Rows</th>
               <th>Status</th>
+              <th>Error Tag</th>
               <th style="text-align:center;">Action</th>
             </tr>
           </thead>
@@ -678,6 +700,14 @@ const ACCOUNTS = [
 
 const STATUSES      = ["Success","Success","Failed","Success","Failed","Success","Success","Failed","Success","Success","Failed","Success","Success","Failed","Success","Failed"];
 const DATA_STREAMS  = ["Media Delivery","Media Conversion"];
+const ERROR_TAGS    = {
+  Success: [],
+  Failed: [
+    ["API_TIMEOUT","RATE_LIMIT","AUTH_FAILED","MISSING_FIELD","DATA_MISMATCH","CONNECTION_ERROR","QUOTA_EXCEEDED","INVALID_TOKEN"]
+  ]
+};
+const ALL_ERROR_TAGS = ["API_TIMEOUT","RATE_LIMIT","AUTH_FAILED","MISSING_FIELD","DATA_MISMATCH","CONNECTION_ERROR","QUOTA_EXCEEDED","INVALID_TOKEN"];
+function randomErrorTag(status){ return status==='Failed' ? ALL_ERROR_TAGS[Math.floor(Math.random()*ALL_ERROR_TAGS.length)] : null; }
 
 function randomInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
 function pad(n){ return String(n).padStart(2,'0'); }
@@ -688,12 +718,14 @@ function makeAccountRows(parentRowId, entityType, startDate, endDate){
   const rows = [];
   ACCOUNTS.forEach((a, i) => {
     DATA_STREAMS.forEach((ds, j) => {
+      const st = STATUSES[(i * DATA_STREAMS.length + j) % STATUSES.length];
       rows.push({
         accountId: a.id,
         dataStream: ds,
         parentRowId,
         records: randomInt(120,9800),
-        status: STATUSES[(i * DATA_STREAMS.length + j) % STATUSES.length],
+        status: st,
+        errorTag: randomErrorTag(st),
       });
     });
   });
@@ -889,12 +921,16 @@ function renderModalTable(){
     const streamBadge = r.dataStream === 'Media Delivery'
       ? `<span style="display:inline-flex;align-items:center;gap:4px;background:#e8f4ff;border:1px solid #b0d4f5;border-radius:12px;padding:2px 10px;font-size:11px;font-weight:600;color:#0070d2;">📡 Media Delivery</span>`
       : `<span style="display:inline-flex;align-items:center;gap:4px;background:#f3e8ff;border:1px solid #d8b4fe;border-radius:12px;padding:2px 10px;font-size:11px;font-weight:600;color:#6b21a8;">🔄 Media Conversion</span>`;
+    const errorCell = r.errorTag
+      ? `<span class="error-tag">⚠ ${r.errorTag}</span>`
+      : `<span class="error-tag-none">—</span>`;
     return `
     <tr id="modal-row-${uid}">
       <td class="td-acct-id">${r.accountId}</td>
       <td>${streamBadge}</td>
       <td style="text-align:right;">${r.records.toLocaleString()}</td>
       <td>${pillHtml(r.status)}</td>
+      <td>${errorCell}</td>
       <td style="text-align:center;">
         <button class="reprocess-btn" id="rbtn-${uid}"
           onclick="reprocessSingle('${r.accountId}','${r.dataStream}','${currentModalRowId}')">
@@ -906,7 +942,7 @@ function renderModalTable(){
   }).join('');
 
   if(filtered.length===0){
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:24px;color:#706e6b;">No matching accounts found.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:#706e6b;">No matching accounts found.</td></tr>`;
   }
 }
 
@@ -928,9 +964,9 @@ function simulateReprocess(accountId, dataStream, rowId, btnId){
   setTimeout(()=>{
     const acctData = ACCOUNT_ROWS[rowId];
     const acct = acctData.find(a=>a.accountId===accountId && a.dataStream===dataStream);
-    if(acct){ acct.status = Math.random()>.2 ? 'Success' : 'Failed'; }
+    if(acct){ acct.status = Math.random()>.2 ? 'Success' : 'Failed'; acct.errorTag = randomErrorTag(acct.status); }
     const local = modalAccountData.find(a=>a.accountId===accountId && a.dataStream===dataStream);
-    if(local && acct){ local.status = acct.status; }
+    if(local && acct){ local.status = acct.status; local.errorTag = acct.errorTag; }
     renderModalSummary();
     renderModalTable();
     showToast(acct?.status==='Success'
@@ -955,8 +991,9 @@ function reprocessAll(){
     }, i*150);
     setTimeout(()=>{
       a.status = Math.random()>.15 ? 'Success':'Failed';
+      a.errorTag = randomErrorTag(a.status);
       const local = modalAccountData.find(x=>x.accountId===a.accountId && x.dataStream===a.dataStream);
-      if(local){ local.status=a.status; }
+      if(local){ local.status=a.status; local.errorTag=a.errorTag; }
       if(i===data.length-1){ renderModalSummary(); renderModalTable(); showToast('✅ All rows reprocessed.','success'); }
     }, 1800 + i*150);
   });
@@ -974,8 +1011,9 @@ function reprocessAllFailed(){
     }, i*200);
     setTimeout(()=>{
       a.status='Success';
+      a.errorTag = null;
       const local = modalAccountData.find(x=>x.accountId===a.accountId && x.dataStream===a.dataStream);
-      if(local){ local.status='Success'; }
+      if(local){ local.status='Success'; local.errorTag=null; }
       if(i===failed.length-1){ renderModalSummary(); renderModalTable(); showToast(`✅ ${failed.length} failed row(s) reprocessed.`,'success'); }
     }, 1800 + i*200);
   });
