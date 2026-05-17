@@ -511,6 +511,41 @@
       to   { opacity: 1; transform: none; }
     }
     .toast-icon { font-size: 16px; }
+
+    /* ── Accounts Tab ── */
+    .accounts-notice {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: #e8f4ff;
+      border: 1px solid #b0d4f5;
+      border-radius: 6px;
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: #0b4f8a;
+      line-height: 1.5;
+    }
+    .accounts-notice-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+    .remove-btn {
+      background: none;
+      border: 1px solid #dddbda;
+      border-radius: 4px;
+      padding: 4px 12px;
+      cursor: pointer;
+      color: #c23934;
+      font-size: 11px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all .15s;
+    }
+    .remove-btn:hover { background: #fce9e9; border-color: #f5c2c2; }
+    .pill.connected { background: #e3f5e8; color: #2e844a; }
+    .pill.connected .pill-dot { background: #2e844a; }
+    .pill.pending-add { background: #fff3d5; color: #8a6000; }
+    .pill.pending-add .pill-dot { background: #ffb75d; }
   </style>
 </head>
 <body>
@@ -567,13 +602,21 @@
 
 <!-- ── Tab Bar ── -->
 <div class="tab-bar">
-  <a href="#">Setup</a>
-  <a href="#" class="active">Process Log ●</a>
-  <a href="#">Data Details</a>
+  <a href="#" onclick="switchTab('setup',this)">Setup</a>
+  <a href="#" onclick="switchTab('processlog',this)" class="active">Process Log ●</a>
+  <a href="#" onclick="switchTab('datadetails',this)">Data Details</a>
+  <a href="#" onclick="switchTab('accounts',this)">Accounts</a>
 </div>
 
 <!-- ── Content ── -->
 <div class="content">
+
+  <!-- placeholder tabs -->
+  <div id="tab-setup"       class="tab-panel" style="display:none;padding:40px;text-align:center;color:#706e6b;">Setup content coming soon.</div>
+  <div id="tab-datadetails" class="tab-panel" style="display:none;padding:40px;text-align:center;color:#706e6b;">Data Details content coming soon.</div>
+
+  <!-- Process Log tab -->
+  <div id="tab-processlog" class="tab-panel">
   <div class="table-card">
     <!-- Toolbar -->
     <div class="table-toolbar">
@@ -613,6 +656,107 @@
 
     <!-- Pagination -->
     <div class="pagination" id="mainPagination"></div>
+  </div>
+  </div><!-- /tab-processlog -->
+
+  <!-- ── Accounts Tab ── -->
+  <div id="tab-accounts" class="tab-panel" style="display:none;">
+
+    <!-- Forward-only notice banner -->
+    <div class="accounts-notice">
+      <span class="accounts-notice-icon">ℹ️</span>
+      <div>
+        <strong>Changes apply going forward only.</strong>
+        Adding or removing accounts will take effect on the <em>next pipeline run</em> and will not affect historical data already processed.
+      </div>
+    </div>
+
+    <!-- Accounts management card -->
+    <div class="table-card">
+      <div class="table-toolbar">
+        <span class="toolbar-title">Connected Accounts <span class="acct-count" id="acctTabCount" style="font-size:12px;margin-left:6px;">0</span></span>
+        <input type="text" class="search-box" placeholder="🔍  Search accounts…" id="acctSearch" oninput="renderAccountsTab()" />
+        <button class="btn btn-primary" onclick="openAddAccountModal()">+ Add Account</button>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table id="acctTable">
+          <thead>
+            <tr>
+              <th>Account ID</th>
+              <th>Account Name</th>
+              <th>Platform</th>
+              <th>Date Added</th>
+              <th>Status</th>
+              <th style="text-align:center;">Action</th>
+            </tr>
+          </thead>
+          <tbody id="acctTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div><!-- /tab-accounts -->
+
+</div><!-- /content -->
+
+<!-- ── Add Account Modal ── -->
+<div class="modal-overlay" id="addAccountModal" onclick="if(event.target===this)closeAddAccountModal()">
+  <div class="modal" style="max-width:480px;max-height:unset;border-radius:6px;">
+    <div class="modal-header">
+      <div class="modal-header-info">
+        <div class="modal-title">Add Account</div>
+        <div class="modal-subtitle">The account will be included starting from the next pipeline run.</div>
+      </div>
+      <button class="modal-close" onclick="closeAddAccountModal()">✕</button>
+    </div>
+    <div style="padding:24px;display:flex;flex-direction:column;gap:16px;">
+      <div>
+        <label style="font-size:12px;font-weight:600;color:#3e3e3c;display:block;margin-bottom:4px;">Account ID <span style="color:#c23934;">*</span></label>
+        <input id="newAcctId" type="text" placeholder="e.g. act_12345678" style="width:100%;border:1px solid #dddbda;border-radius:4px;padding:8px 10px;font-size:13px;outline:none;" />
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:600;color:#3e3e3c;display:block;margin-bottom:4px;">Account Name <span style="color:#c23934;">*</span></label>
+        <input id="newAcctName" type="text" placeholder="e.g. My Brand LLC" style="width:100%;border:1px solid #dddbda;border-radius:4px;padding:8px 10px;font-size:13px;outline:none;" />
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:600;color:#3e3e3c;display:block;margin-bottom:4px;">Platform</label>
+        <select id="newAcctPlatform" style="width:100%;border:1px solid #dddbda;border-radius:4px;padding:8px 10px;font-size:13px;color:#3e3e3c;">
+          <option>Meta Ads</option>
+          <option>Google Ads</option>
+          <option>TikTok Ads</option>
+          <option>LinkedIn Ads</option>
+        </select>
+      </div>
+      <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:4px;padding:10px 14px;font-size:12px;color:#7a5800;display:flex;gap:8px;align-items:flex-start;">
+        <span>⚠️</span><span>This account will be connected <strong>going forward only</strong>. Historical data before the next pipeline run will not be backfilled.</span>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px;">
+        <button class="btn" onclick="closeAddAccountModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="addAccount()">Add Account</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Remove Confirm Modal ── -->
+<div class="modal-overlay" id="removeAccountModal" onclick="if(event.target===this)closeRemoveModal()">
+  <div class="modal" style="max-width:420px;max-height:unset;border-radius:6px;">
+    <div class="modal-header">
+      <div class="modal-header-info">
+        <div class="modal-title" style="color:#c23934;">Remove Account</div>
+      </div>
+      <button class="modal-close" onclick="closeRemoveModal()">✕</button>
+    </div>
+    <div style="padding:24px;display:flex;flex-direction:column;gap:16px;">
+      <p style="font-size:14px;color:#3e3e3c;">Are you sure you want to remove <strong id="removeAcctLabel"></strong> from this pipeline?</p>
+      <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:4px;padding:10px 14px;font-size:12px;color:#7a5800;display:flex;gap:8px;align-items:flex-start;">
+        <span>⚠️</span><span>This account will be disconnected <strong>going forward only</strong>. Data already ingested will be retained and unaffected.</span>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px;">
+        <button class="btn" onclick="closeRemoveModal()">Cancel</button>
+        <button class="btn btn-danger" onclick="confirmRemove()">Remove</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1030,7 +1174,90 @@ function showToast(msg, type='success'){
 }
 
 // ── KEYBOARD ──────────────────────────────────────────────────────────────────
-document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closeModal(); closeAddAccountModal(); closeRemoveModal(); } });
+
+// ── TAB SWITCHING ─────────────────────────────────────────────────────────────
+function switchTab(tab, el){
+  event.preventDefault();
+  document.querySelectorAll('.tab-bar a').forEach(a=>a.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p=>p.style.display='none');
+  document.getElementById('tab-'+tab).style.display='block';
+  if(tab==='accounts') renderAccountsTab();
+}
+
+// ── ACCOUNTS TAB DATA ─────────────────────────────────────────────────────────
+let connectedAccounts = ACCOUNTS.map((a,i)=>({
+  id: a.id,
+  name: a.name,
+  platform: a.platform,
+  dateAdded: `${(i%3)+3}/1/2026`,
+  status: 'Connected',
+}));
+let pendingRemoveId = null;
+
+function renderAccountsTab(){
+  const search = (document.getElementById('acctSearch')?.value||'').toLowerCase();
+  const filtered = connectedAccounts.filter(a=>
+    `${a.id} ${a.name} ${a.platform}`.toLowerCase().includes(search)
+  );
+  document.getElementById('acctTabCount').textContent = connectedAccounts.length;
+  document.getElementById('acctTbody').innerHTML = filtered.length ? filtered.map(a=>`
+    <tr>
+      <td class="td-acct-id">${a.id}</td>
+      <td style="font-weight:500;">${a.name}</td>
+      <td>${a.platform}</td>
+      <td>${a.dateAdded}</td>
+      <td><span class="pill ${a.status==='Connected'?'connected':'pending-add'}"><span class="pill-dot"></span>${a.status}</span></td>
+      <td style="text-align:center;">
+        <button class="remove-btn" onclick="openRemoveModal('${a.id}','${a.name}')">
+          🗑 Remove
+        </button>
+      </td>
+    </tr>`).join('')
+  : `<tr><td colspan="6" style="text-align:center;padding:24px;color:#706e6b;">No accounts found.</td></tr>`;
+}
+
+// ── ADD ACCOUNT ───────────────────────────────────────────────────────────────
+function openAddAccountModal(){
+  document.getElementById('newAcctId').value='';
+  document.getElementById('newAcctName').value='';
+  document.getElementById('newAcctPlatform').value='Meta Ads';
+  document.getElementById('addAccountModal').classList.add('open');
+}
+function closeAddAccountModal(){
+  document.getElementById('addAccountModal').classList.remove('open');
+}
+function addAccount(){
+  const id   = document.getElementById('newAcctId').value.trim();
+  const name = document.getElementById('newAcctName').value.trim();
+  const plat = document.getElementById('newAcctPlatform').value;
+  if(!id || !name){ showToast('⚠️ Please fill in Account ID and Name.','warn'); return; }
+  if(connectedAccounts.find(a=>a.id===id)){ showToast('⚠️ This Account ID is already connected.','warn'); return; }
+  const today = new Date();
+  connectedAccounts.push({ id, name, platform:plat, dateAdded:`${today.getMonth()+1}/${today.getDate()}/${today.getFullYear()}`, status:'Pending (Next Run)' });
+  closeAddAccountModal();
+  renderAccountsTab();
+  showToast(`✅ Account "${name}" added — will be active from the next pipeline run.`,'success');
+}
+
+// ── REMOVE ACCOUNT ────────────────────────────────────────────────────────────
+function openRemoveModal(id, name){
+  pendingRemoveId = id;
+  document.getElementById('removeAcctLabel').textContent = `"${name}" (${id})`;
+  document.getElementById('removeAccountModal').classList.add('open');
+}
+function closeRemoveModal(){
+  document.getElementById('removeAccountModal').classList.remove('open');
+  pendingRemoveId = null;
+}
+function confirmRemove(){
+  const acct = connectedAccounts.find(a=>a.id===pendingRemoveId);
+  connectedAccounts = connectedAccounts.filter(a=>a.id!==pendingRemoveId);
+  closeRemoveModal();
+  renderAccountsTab();
+  showToast(`🗑 "${acct?.name}" removed — will no longer be processed from the next pipeline run.`,'info');
+}
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 renderMainTable();
